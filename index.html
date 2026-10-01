@@ -1,0 +1,2638 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>gansonbooru</title>
+    <style>
+      :root {
+        --bg: #0e131b;
+        --card: #171d26;
+        --mut: #222c39;
+        --bd: #344051;
+        --fg: #e4eaf1;
+        --mf: #a8b6c7;
+        --pr: #7bb4f4;
+        --er: #e66565;
+        --ok: #2f9e57;
+        --hl: #344051
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0
+      }
+
+      body {
+        background: var(--bg) url('background.png') repeat;
+        color: var(--fg);
+        font: 13px/20px system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased
+      }
+
+      a {
+        color: var(--pr);
+        text-decoration: none;
+        cursor: pointer
+      }
+
+      a:hover {
+        text-decoration: underline
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+        color: inherit
+      }
+
+      .hidden {
+        display: none !important
+      }
+
+      .small {
+        font-size: 11px;
+        color: var(--mf)
+      }
+
+      .err {
+        color: var(--er);
+        font-size: 12px;
+        margin-top: 6px
+      }
+
+      .ob {
+        background: var(--card);
+        border: 2px outset var(--bd);
+        border-top-color: var(--hl);
+        border-left-color: var(--hl)
+      }
+
+      input[type=text],
+      input[type=password],
+      textarea,
+      select {
+        width: 100%;
+        background: var(--card);
+        border: 2px inset var(--bd);
+        padding: 4px 6px;
+        min-height: 30px;
+        outline: none
+      }
+
+      textarea {
+        resize: vertical
+      }
+
+      .btn {
+        background: var(--card);
+        border: 2px outset var(--bd);
+        border-top-color: var(--hl);
+        border-left-color: var(--hl);
+        padding: 3px 10px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 28px
+      }
+
+      .btn:hover {
+        background: var(--mut)
+      }
+
+      .btn:active,
+      .btn.on {
+        border-style: inset;
+        background: var(--mut)
+      }
+
+      .btn.pri {
+        color: var(--pr);
+        font-weight: 600
+      }
+
+      .btn:disabled {
+        opacity: .5;
+        cursor: default
+      }
+
+      .ic {
+        background: none;
+        border: 2px solid transparent;
+        color: var(--mf);
+        cursor: pointer;
+        display: inline-flex;
+        padding: 2px
+      }
+
+      .ic:hover {
+        color: var(--fg)
+      }
+
+      #top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 5px 10px;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: var(--bg);
+        border-bottom: 2px solid var(--bd)
+      }
+
+      #top .brand {
+        font-weight: 700;
+        color: var(--fg)
+      }
+
+      .sp {
+        flex: 1
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--ok);
+        display: inline-block
+      }
+
+      .dot.down {
+        background: var(--er)
+      }
+
+      #shell {
+        display: flex;
+        align-items: flex-start
+      }
+
+      #side {
+        flex: 0 0 230px;
+        width: 230px;
+        max-width: 100%;
+        padding: 8px;
+        min-height: calc(100vh - 42px);
+        position: sticky;
+        top: 42px;
+        border-right: 2px solid var(--bd);
+        background: var(--bg);
+        display: flex;
+        flex-direction: column;
+        gap: 6px
+      }
+
+      .srch {
+        display: flex;
+        border: 2px inset var(--bd);
+        background: var(--card)
+      }
+
+      .srch input {
+        border: 0;
+        flex: 1
+      }
+
+      .srch button {
+        background: none;
+        border: 0;
+        padding: 0 8px;
+        color: var(--mf);
+        cursor: pointer
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 3px
+      }
+
+      .chip {
+        background: var(--mut);
+        border: 1px solid var(--bd);
+        padding: 0 5px;
+        font-size: 11px
+      }
+
+      .chip b {
+        cursor: pointer;
+        margin-left: 4px;
+        font-weight: 400
+      }
+
+      .nav {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 3px
+      }
+
+      .nav .cell {
+        display: flex;
+        align-items: center;
+        border: 2px solid transparent;
+        min-width: 0
+      }
+
+      .nav a,
+      .nav .cell>a {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 6px;
+        color: var(--fg);
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        border: 2px solid transparent
+      }
+
+      .nav a.act {
+        background: var(--mut);
+        border: 2px inset var(--bd);
+        font-weight: 600
+      }
+
+      .nav a:hover {
+        background: var(--mut);
+        text-decoration: none
+      }
+
+      .sub {
+        grid-column: 1/-1;
+        display: flex;
+        flex-direction: column;
+        padding-left: 28px
+      }
+
+      .sub a {
+        padding: 2px 6px;
+        color: var(--mf)
+      }
+
+      .foot {
+        margin-top: auto;
+        border-top: 2px solid var(--bd);
+        padding-top: 8px;
+        display: flex;
+        justify-content: space-between
+      }
+
+      .foot a {
+        color: var(--fg)
+      }
+
+      #page {
+        flex: 1;
+        min-width: 0;
+        padding: 12px
+      }
+
+      .wrap {
+        max-width: 1250px;
+        margin: 0 auto
+      }
+
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 3px;
+        padding: 4px;
+        margin-bottom: 12px
+      }
+
+      .tabs a {
+        color: var(--fg);
+        padding: 1px 8px;
+        border: 2px solid transparent
+      }
+
+      .tabs a:hover {
+        background: var(--mut);
+        text-decoration: none
+      }
+
+      .tabs a.act {
+        border: 2px inset var(--bd);
+        background: var(--mut);
+        font-weight: 600
+      }
+
+      .tabs .gap {
+        width: 10px
+      }
+
+      .tabs .cnt {
+        margin-left: auto;
+        color: var(--mf);
+        padding-right: 6px
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 12px
+      }
+
+      .pc {
+        cursor: pointer;
+        padding: 3px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px
+      }
+
+      .th {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: var(--bg)
+      }
+
+      .th img,
+      .th video {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain
+      }
+
+      .th.sp2 img,
+      .th.sp2 video {
+        filter: blur(18px)
+      }
+
+      .pm {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        color: var(--mf);
+        padding: 0 2px 2px
+      }
+
+      .pm .n {
+        color: #6fcf7c;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap
+      }
+
+      .pm .t {
+        margin-left: auto;
+        white-space: nowrap
+      }
+
+      .av {
+        width: 16px;
+        height: 16px;
+        background: var(--mut);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--mf);
+        flex-shrink: 0
+      }
+
+      .pager {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px
+      }
+
+      .pager input {
+        width: 50px;
+        text-align: center
+      }
+
+      .media {
+        display: flex;
+        justify-content: center;
+        padding: 10px;
+        margin-bottom: 10px;
+        min-height: 120px
+      }
+
+      .media img,
+      .media video {
+        max-width: 100%;
+        max-height: 75vh
+      }
+
+      .info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 10px;
+        align-items: flex-start;
+        margin-bottom: 10px
+      }
+
+      .bdg {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 1px 8px;
+        color: #fff;
+        display: inline-block
+      }
+
+      .bdg.g {
+        background: var(--ok)
+      }
+
+      .bdg.b {
+        background: #2f63e0
+      }
+
+      .bdg.q {
+        background: #b7791f
+      }
+
+      .bdg.e {
+        background: #c0392b
+      }
+
+      .nm {
+        color: #6fcf7c;
+        font-weight: 600
+      }
+
+      .box {
+        padding: 10px;
+        margin-bottom: 10px
+      }
+
+      .box h3 {
+        font-size: 12px;
+        margin-bottom: 6px
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px
+      }
+
+      .tag {
+        background: var(--mut);
+        border: 1px solid var(--bd);
+        padding: 1px 7px;
+        font-family: monospace;
+        color: var(--pr);
+        cursor: pointer
+      }
+
+      .cm {
+        display: flex;
+        gap: 8px;
+        padding: 8px 0;
+        border-top: 1px solid var(--bd)
+      }
+
+      .cm .h {
+        font-size: 11px;
+        color: var(--mf)
+      }
+
+      .lbl {
+        font-weight: 600;
+        margin: 10px 0 3px;
+        font-size: 12px
+      }
+
+      details {
+        border: 2px solid var(--bd);
+        margin-top: 8px
+      }
+
+      summary {
+        padding: 6px 8px;
+        cursor: pointer
+      }
+
+      details .b {
+        padding: 0 8px 8px
+      }
+
+      .fr {
+        padding: 12px;
+        margin-top: 12px
+      }
+
+      .frh {
+        display: flex;
+        gap: 10px
+      }
+
+      .frt {
+        width: 64px;
+        height: 64px;
+        background: var(--bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0
+      }
+
+      .frt img,
+      .frt video {
+        max-width: 100%;
+        max-height: 100%
+      }
+
+      .dz {
+        border: 2px dashed var(--bd);
+        padding: 26px;
+        text-align: center;
+        color: var(--mf);
+        margin-top: 10px
+      }
+
+      .dz.over {
+        border-color: var(--pr)
+      }
+
+      .row {
+        display: flex;
+        gap: 6px;
+        margin-top: 8px
+      }
+
+      .mod {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .65);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px
+      }
+
+      .mb {
+        width: 520px;
+        max-width: 100%;
+        max-height: 88vh;
+        overflow: auto;
+        padding: 18px;
+        position: relative
+      }
+
+      .mb.s {
+        width: 340px
+      }
+
+      .mb .x {
+        position: absolute;
+        right: 10px;
+        top: 6px;
+        background: none;
+        border: 0;
+        font-size: 20px;
+        color: var(--mf);
+        cursor: pointer
+      }
+
+      .mb h2 {
+        margin-bottom: 10px;
+        font-size: 15px
+      }
+
+      .mb label {
+        display: block;
+        font-weight: 600;
+        margin: 8px 0 3px
+      }
+
+      code {
+        background: var(--mut);
+        padding: 0 4px;
+        font-family: monospace
+      }
+
+      .front {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        background: transparent
+      }
+
+      .fb {
+        width: 440px;
+        max-width: 100%;
+        padding: 18px
+      }
+
+      .ft {
+        display: flex;
+        justify-content: flex-end;
+        gap: 16px;
+        margin-bottom: 24px
+      }
+
+      .ft a {
+        color: var(--fg)
+      }
+
+      .fg {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        justify-items: center;
+        margin-bottom: 24px
+      }
+
+      .fi {
+        background: none;
+        border: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+        color: var(--fg)
+      }
+
+      .fi svg {
+        color: var(--mf)
+      }
+
+      .rules ol {
+        padding-left: 22px
+      }
+
+      .rules ul {
+        margin: 3px 0 3px 18px
+      }
+
+      .rules li {
+        margin: 3px 0
+      }
+
+      .mg {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 10px
+      }
+
+      .mg>div {
+        padding: 8px;
+        display: flex;
+        gap: 8px;
+        align-items: center
+      }
+
+      .bbcode-quote {
+        border: 2px outset var(--bd);
+        background: var(--card);
+        margin: .5rem 0;
+        padding: .375rem
+      }
+
+      .bbcode-spoiler {
+        background: var(--fg);
+        color: transparent;
+        cursor: pointer;
+        padding: 0 .25rem
+      }
+
+      .bbcode-spoiler:hover {
+        color: var(--bg);
+        background: transparent
+      }
+
+      .bbcode-greentext {
+        color: #9aca69
+      }
+
+      .bbcode-redtext {
+        color: #ff6b6b
+      }
+
+      .bbcode-bluetext {
+        color: #74c0fc
+      }
+
+      .name-decoration {
+        color: inherit;
+        position: relative;
+        display: inline-block;
+        isolation: isolate
+      }
+
+      .name-decoration:before {
+        content: attr(data-name);
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        color: var(--name-decoration-color, currentColor)
+      }
+
+      .name-decoration-glow:before {
+        text-shadow: 0 0 6px color-mix(in srgb, var(--name-decoration-color, #a1a1aa) 70%, transparent)
+      }
+
+      .name-decoration-shadow:before {
+        color: transparent;
+        text-shadow: 1px 1px 0 color-mix(in srgb, var(--name-decoration-color, #a1a1aa) 55%, black), 2px 2px 0 color-mix(in srgb, var(--name-decoration-color, #a1a1aa) 35%, black)
+      }
+
+      .name-decoration-underline {
+        border-bottom: 1px solid var(--name-decoration-color, #a1a1aa)
+      }
+
+      .name-color-gradient {
+        display: inline-block;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent !important
+      }
+
+      @media(max-width:900px) {
+        .grid {
+          grid-template-columns: repeat(3, 1fr)
+        }
+
+        #side {
+          position: fixed;
+          left: 0;
+          top: 42px;
+          bottom: 0;
+          z-index: 30;
+          overflow: auto;
+          width: 230px;
+          max-width: 85vw
+        }
+      }
+
+      @media(max-width:560px) {
+        .grid {
+          grid-template-columns: repeat(2, 1fr)
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="top" class="hidden">
+      <button class="ic" id="tg" type="button" title="Toggle sidebar" data-i="menu"></button>
+      <a class="brand" href="#/">gansonbooru</a>
+      <a href="#/upload">Upload</a>
+      <span class="sp"></span>
+      <span class="small">
+        <span class="dot" id="dot"></span>
+        <span id="ob"></span>
+      </span>
+      <span id="who" class="small"></span>
+      <button class="btn" id="li" type="button">Log in</button>
+      <button class="btn hidden" id="lo" type="button">Sign out</button>
+    </div>
+    <div id="shell">
+      <aside id="side" class="hidden">
+        <div class="srch">
+          <input type="text" id="si" placeholder="Search by tags...">
+          <button id="sb" type="button" data-i="search"></button>
+        </div>
+        <div class="chips" id="chips"></div>
+        <nav class="nav">
+          <div class="cell">
+            <a id="n-gallery" href="#/gallery">
+              <span data-i="gallery"></span>Gallery </a>
+            <button class="ic" data-sub="s1" type="button" data-i="down"></button>
+          </div>
+          <div class="cell">
+            <a id="n-propaganda" href="#/propaganda">
+              <span data-i="prop"></span>Propaganda </a>
+            <button class="ic" data-sub="s2" type="button" data-i="down"></button>
+          </div>
+          <div class="sub hidden" id="s1">
+            <a href="#/gallery?sort=popular">Popular</a>
+            <a href="#/gallery?sort=unpopular">Unpopular</a>
+            <a href="#/gallery?sort=controversial">Controversial</a>
+          </div>
+          <div class="sub hidden" id="s2">
+            <a href="#/propaganda?sort=popular">Popular</a>
+            <a href="#/propaganda?sort=unpopular">Unpopular</a>
+            <a href="#/propaganda?sort=controversial">Controversial</a>
+          </div>
+          <a id="n-members" href="#/members">
+            <span data-i="person"></span>Members </a>
+          <a id="n-happenings" href="#/happenings">
+            <span data-i="list"></span>Happenings </a>
+          <a id="n-rules" href="#/rules">
+            <span data-i="help"></span>Help </a>
+          <a id="n-upload" href="#/upload">
+            <span data-i="up"></span>Upload </a>
+        </nav>
+        <div class="foot" id="sa">
+          <span>
+            <a id="sl">Login</a> | <a id="sr">Register</a>
+          </span>
+        </div>
+      </aside>
+      <main id="page">
+        <div class="small" style="padding:20px">Loading...</div>
+      </main>
+    </div>
+    <div class="mod hidden" id="tut">
+      <div class="mb ob">
+        <button class="x" id="tx" type="button">&times;</button>
+        <h2>Upload Tutorial</h2>
+        <p>The Ganson has two categories, a gallery category and a "propaganda" category.</p>
+        <br>
+        <p>The gallery category is for officer(ganson) variants and other NAO (not a officer) memes related to the thy police, and posts must contain a <code>NAO:</code> or <code>variant:</code> tag. For example: </p>
+        <div class="ob" style="display:flex;gap:16px;justify-content:center;padding:10px;margin:8px 0;font-weight:600;font-size:11px">
+          <span>variant:officer</span>
+          <span>propaganda:art</span>
+          <span>nao:tommyparky</span>
+        </div>
+        <p>The propaganda(art) category accepts any otherwise unrelated but <b>original content</b> for propaganda/art themed posts, and they must be tagged <code>media:battlefield</code>, <code>media:police</code>, or <code>media:military</code> Or whatever your desired tag needs </p>
+        <br>
+        <a id="tf">Full guidelines</a>
+      </div>
+    </div>
+    <div class="mod hidden" id="lm">
+      <div class="mb s ob">
+        <button class="x" id="lx" type="button">&times;</button>
+        <div id="s-u">
+          <h2>Sign in</h2>
+          <label for="lu">Username</label>
+          <input type="text" id="lu" autocomplete="username">
+          <div class="row">
+            <button class="btn pri" id="cb" type="button">Continue</button>
+          </div>
+          <div id="ue" class="err"></div>
+          <div class="small" style="margin-top:8px">New here? Pick a username (3 to 24 letters, numbers or underscores) and you will be asked for a password.</div>
+        </div>
+        <div id="s-l" class="hidden">
+          <h2>Sign in</h2>
+          <div class="small">Welcome back, <b id="ln"></b>
+          </div>
+          <label for="lp">Password</label>
+          <input type="password" id="lp" autocomplete="current-password">
+          <div class="row">
+            <button class="btn pri" id="lb" type="button">Sign in</button>
+            <button class="btn bk" type="button">Back</button>
+          </div>
+          <div id="le" class="err"></div>
+          <div style="margin-top:8px">
+            <a id="fl">Cannot access your account?</a>
+          </div>
+        </div>
+        <div id="s-s" class="hidden">
+          <h2>Create account</h2>
+          <div class="small">
+            <b id="sn"></b> is available.
+          </div>
+          <label for="sp">Password (6+ characters)</label>
+          <input type="password" id="sp" autocomplete="new-password">
+          <label for="sq">Backup security question</label>
+          <input type="text" id="sq">
+          <label for="sa2">Security answer</label>
+          <input type="text" id="sa2">
+          <div class="row">
+            <button class="btn pri" id="sbn" type="button">Create account</button>
+            <button class="btn bk" type="button">Back</button>
+          </div>
+          <div id="se" class="err"></div>
+        </div>
+        <div id="s-f" class="hidden">
+          <h2>Reset password</h2>
+          <div class="small" id="fq"></div>
+          <label for="fa">Security answer</label>
+          <input type="text" id="fa">
+          <label for="fp">New password</label>
+          <input type="password" id="fp" autocomplete="new-password">
+          <div class="row">
+            <button class="btn pri" id="fb" type="button">Reset password</button>
+            <button class="btn bk" type="button">Back</button>
+          </div>
+          <div id="fe" class="err"></div>
+        </div>
+        <div class="small" style="margin-top:10px">
+          <label style="display:inline;font-weight:400">
+            <input type="checkbox" id="stay" checked> Remember my username </label>
+        </div>
+        <div class="small" style="margin-top:8px">If you forget your password and security question there currently is no way to reset your password</div>
+      </div>
+    </div>
+    <script type="module">
+      let NT = null;
+      for (const u of ['https://cdn.jsdelivr.net/npm/nostr-tools@2.10.4/+esm', 'https://esm.sh/nostr-tools@2.10.4']) {
+        try {
+          NT = await import(u);
+          if (NT && NT.SimplePool && NT.finalizeEvent) break;
+          NT = null
+        } catch (e) {
+          NT = null
+        }
+      }
+      if (!NT) {
+        document.getElementById('page').textContent = 'Could not load the Nostr library. Disable content blockers for this page and reload.';
+        throw new Error('nostr-tools failed')
+      }
+      const {
+        SimplePool,
+        finalizeEvent,
+        getPublicKey,
+        verifyEvent
+      } = NT;
+      const RELAYS = ["wss://relay.damus.io", "wss://nos.lol", "wss://relay.nostr.band", "wss://relay.primal.net", "wss://relay.snort.social", "wss://nostr.mom", "wss://offchain.pub"];
+      const NS = "gansonbooru-v1",
+        CAT = NS + "-cat-",
+        AK = 7371,
+        HOST = "files.catbox.moe",
+        pool = new SimplePool();
+      const $ = id => document.getElementById(id);
+      const lsG = (k, f) => {
+        try {
+          const v = localStorage.getItem(k);
+          return v === null ? f : JSON.parse(v)
+        } catch (e) {
+          return f
+        }
+      };
+      const lsS = (k, v) => {
+        try {
+          localStorage.setItem(k, JSON.stringify(v))
+        } catch (e) {}
+      };
+      const enc = new TextEncoder(),
+        hex = b => Array.from(b).map(x => x.toString(16).padStart(2, '0')).join(''),
+        unhex = h => {
+          const b = new Uint8Array(h.length / 2);
+          for (let i = 0; i < b.length; i++) b[i] = parseInt(h.substr(i * 2, 2), 16);
+          return b
+        };
+      const nu = u => (u || '').trim().toLowerCase(),
+        okName = u => /^[a-z0-9_]{3,24}$/.test(u),
+        rnd = n => crypto.getRandomValues(new Uint8Array(n));
+      const sha = async s => new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(s)));
+      async function ukeys(u) {
+        const sk = await sha('uoogle-account-v1:' + nu(u));
+        return {
+          sk,
+          pk: getPublicKey(sk),
+          tag: '@' + hex(sk).slice(0, 6).toUpperCase()
+        }
+      }
+      async function pbk(s, salt) {
+        const m = await crypto.subtle.importKey('raw', enc.encode(s), 'PBKDF2', false, ['deriveBits']);
+        return new Uint8Array(await crypto.subtle.deriveBits({
+          name: 'PBKDF2',
+          salt,
+          iterations: 150000,
+          hash: 'SHA-256'
+        }, m, 256))
+      }
+      async function aesE(k, p) {
+        const key = await crypto.subtle.importKey('raw', k, 'AES-GCM', false, ['encrypt']),
+          iv = rnd(12);
+        return {
+          iv: hex(iv),
+          ct: hex(new Uint8Array(await crypto.subtle.encrypt({
+            name: 'AES-GCM',
+            iv
+          }, key, p)))
+        }
+      }
+      async function aesD(k, iv, ct) {
+        const key = await crypto.subtle.importKey('raw', k, 'AES-GCM', false, ['decrypt']);
+        return new Uint8Array(await crypto.subtle.decrypt({
+          name: 'AES-GCM',
+          iv: unhex(iv)
+        }, key, unhex(ct)))
+      }
+      async function wrap(secret, id) {
+        const salt = rnd(16),
+          e = await aesE(await pbk(secret, salt), id);
+        return {
+          salt: hex(salt),
+          iv: e.iv,
+          ct: e.ct
+        }
+      }
+      async function fetchAcc(u) {
+        const k = await ukeys(u);
+        try {
+          const ev = await pool.querySync(RELAYS, {
+            kinds: [AK],
+            authors: [k.pk],
+            "#t": [NS],
+            limit: 500
+          }, {
+            maxWait: 8000
+          });
+          return (ev || []).filter(e => {
+            try {
+              return verifyEvent(e)
+            } catch (x) {
+              return false
+            }
+          })
+        } catch (e) {
+          return []
+        }
+      }
+
+      function parseAcc(evs) {
+        const p = evs.map(e => {
+          try {
+            return {
+              e,
+              d: JSON.parse(e.content)
+            }
+          } catch (x) {
+            return null
+          }
+        }).filter(Boolean);
+        p.sort((a, b) => a.e.created_at - b.e.created_at || (a.e.id < b.e.id ? -1 : 1));
+        return {
+          g: p.find(x => x.d.type === 'create') || null,
+          all: p
+        }
+      }
+      async function pubAcc(u, data) {
+        const k = await ukeys(u);
+        const it = publish(finalizeEvent({
+          kind: AK,
+          created_at: now(),
+          tags: [
+            ["t", NS],
+            ["u", nu(u)]
+          ],
+          content: JSON.stringify(data),
+          pubkey: k.pk
+        }, k.sk));
+        return waitAck(it, 15000)
+      }
+      async function createAcc(u, pw, q, a) {
+        const id = rnd(32),
+          pk = getPublicKey(id);
+        const ok = await pubAcc(u, {
+          type: 'create',
+          username: nu(u),
+          question: q,
+          identityPubkey: pk,
+          encByPassword: await wrap(pw, id),
+          encByAnswer: await wrap(nu(a), id)
+        });
+        if (!ok) return null;
+        const k = await ukeys(u);
+        return {
+          sk: id,
+          pk,
+          tag: k.tag,
+          username: nu(u)
+        }
+      }
+      async function tryOpen(u, secret, field) {
+        const {
+          g,
+          all
+        } = parseAcc(await fetchAcc(u));
+        if (!g) return {
+          ok: false,
+          r: 'nf'
+        };
+        for (const c of all.slice().reverse()) {
+          const w = c.d[field];
+          if (!w) continue;
+          try {
+            const sk = await aesD(await pbk(secret, unhex(w.salt)), w.iv, w.ct);
+            if (getPublicKey(sk) === g.d.identityPubkey) {
+              const k = await ukeys(u);
+              return {
+                ok: true,
+                sk,
+                pk: getPublicKey(sk),
+                tag: k.tag,
+                username: nu(u),
+                q: g.d.question
+              }
+            }
+          } catch (e) {}
+        }
+        return {
+          ok: false,
+          r: 'bad'
+        }
+      }
+      let outbox = (lsG('og_outbox', []) || []).filter(x => x && x.event && Array.isArray(x.done)).map(x => ({
+          event: x.event,
+          done: x.done,
+          st: {}
+        })),
+        pumping = false,
+        again = false;
+      const wt = (p, ms) => new Promise((res, rej) => {
+        const t = setTimeout(() => rej(new Error('timeout')), ms);
+        p.then(v => {
+          clearTimeout(t);
+          res(v)
+        }, e => {
+          clearTimeout(t);
+          rej(e)
+        })
+      });
+      async function toRelay(ev, u) {
+        try {
+          const r = await wt(pool.ensureRelay(u), 8000);
+          await wt(r.publish(ev), 10000);
+          return true
+        } catch (e) {
+          return /duplicate/i.test(String(e && e.message || e))
+        }
+      }
+
+      function publish(ev) {
+        const it = {
+          event: ev,
+          done: [],
+          st: {}
+        };
+        outbox.push(it);
+        lsS('og_outbox', outbox.slice(-60));
+        pump();
+        return it
+      }
+      const pend = it => RELAYS.filter(u => !it.done.includes(u) && !(it.st[u] && it.st[u].gave));
+      async function pump() {
+        if (pumping) {
+          again = true;
+          return
+        }
+        pumping = true;
+        try {
+          const jobs = [],
+            t = Date.now();
+          outbox.forEach(it => RELAYS.forEach(u => {
+            if (it.done.includes(u)) return;
+            const s = it.st[u] || (it.st[u] = {
+              tries: 0,
+              next: 0
+            });
+            if (s.gave || s.next > t) return;
+            jobs.push((async () => {
+              if (await toRelay(it.event, u)) {
+                if (!it.done.includes(u)) it.done.push(u)
+              } else {
+                s.tries++;
+                s.next = Date.now() + Math.min(300000, 3000 * 2 ** s.tries);
+                if (s.tries >= 8) s.gave = true
+              }
+            })())
+          }));
+          await Promise.all(jobs);
+          outbox = outbox.filter(it => pend(it).length > 0);
+          lsS('og_outbox', outbox.slice(-60));
+          $('ob').textContent = outbox.length ? 'sending ' + outbox.length : ''
+        } finally {
+          pumping = false;
+          if (again) {
+            again = false;
+            pump()
+          }
+        }
+      }
+      async function waitAck(it, ms) {
+        const end = Date.now() + ms;
+        while (Date.now() < end) {
+          if (it.done.length) return true;
+          if (!pend(it).length) return false;
+          await new Promise(r => setTimeout(r, 200))
+        }
+        return it.done.length > 0
+      }
+      const rs = {};
+      RELAYS.forEach(r => rs[r] = false);
+      const rf = {};
+      RELAYS.forEach(r => rf[r] = 0);
+
+      function stat() {
+        const n = Object.values(rs).filter(Boolean).length;
+        $('dot').classList.toggle('down', !n);
+        $('dot').title = n ? n + ' of ' + RELAYS.length + ' relays connected' : 'No relays reachable'
+      }
+      async function conn(u) {
+        try {
+          const r = await pool.ensureRelay(u);
+          rs[u] = true;
+          rf[u] = 0;
+          r.onclose = () => {
+            rs[u] = false;
+            stat();
+            rec(u)
+          }
+        } catch (e) {
+          rs[u] = false;
+          rec(u)
+        }
+        stat()
+      }
+
+      function rec(u) {
+        rf[u]++;
+        setTimeout(() => conn(u), Math.min(30000, 1000 * 2 ** rf[u]))
+      }
+      const vc = (u, re) => {
+        try {
+          const p = new URL(u);
+          return p.protocol === 'https:' && p.hostname === HOST && re.test(p.pathname)
+        } catch (e) {
+          return false
+        }
+      };
+      const vI = u => vc(u, /\.(jpe?g|png|gif|webp)$/i),
+        vV = u => vc(u, /\.(mp4|webm)$/i),
+        vA = u => vc(u, /\.(mp3|wav)$/i);
+      const posts = new Map(),
+        seen = new Set(),
+        reacts = new Map(),
+        comments = new Map();
+      let ME = null,
+        side = lsG('gb_side', null);
+      if (side === null) side = innerWidth > 900;
+      let cur = {
+          name: 'front',
+          params: new URLSearchParams('')
+        },
+        gem = null;
+
+      function el(t, a, x, kids) {
+        const n = document.createElement(t);
+        if (a)
+          for (const k in a) {
+            if (k === 'class') n.className = a[k];
+            else n.setAttribute(k, a[k])
+          }
+        if (x !== undefined) n.textContent = x;
+        if (kids) kids.forEach(c => c && n.appendChild(c));
+        return n
+      }
+      const P = {
+        menu: 'M3 18h18v-2H3zm0-5h18v-2H3zm0-7v2h18V6z',
+        search: 'M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5zM9.5 14a4.500 4.500 0 1 1 0-9 4.500 4.500 0 0 1 0 9z',
+        gallery: 'M20 5H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zM8.500 12.500l2.600 3.100 3.600-4.600 4.800 6H4.500z',
+        prop: 'M3 3h18v2H3zm0 8h12v2H3zm0 8h18v2H3zm14-8h4v2h-4z',
+        person: 'M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2.500c-4.400 0-9 2.200-9 5V22h18v-2.500c0-2.800-4.600-5-9-5z',
+        list: 'M4 4h16v2H4zm0 7h10v2H4zm0 7h16v2H4z',
+        help: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 17h-2v-2h2zm2.100-7.800-.9.9A3.400 3.400 0 0 0 13 14.500h-2V14a3.100 3.100 0 0 1 1.200-2.300l1.200-1.300A1.700 1.700 0 0 0 14 9a2 2 0 0 0-4 0H8a4 4 0 0 1 8 0 2.900 2.900 0 0 1-.9 2.200z',
+        up: 'M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z',
+        down: 'M7 10l5 5 5-5z',
+        play: 'M8 5v14l11-7z'
+      };
+
+      function ico(n, s) {
+        const N = 'http://www.w3.org/2000/svg',
+          v = document.createElementNS(N, 'svg');
+        v.setAttribute('viewBox', '0 0 24 24');
+        v.setAttribute('width', s || 18);
+        v.setAttribute('height', s || 18);
+        v.setAttribute('fill', 'currentColor');
+        const p = document.createElementNS(N, 'path');
+        p.setAttribute('d', P[n]);
+        v.appendChild(p);
+        return v
+      }
+
+      function icons() {
+        document.querySelectorAll('[data-i]').forEach(n => {
+          n.textContent = '';
+          n.appendChild(ico(n.dataset.i))
+        })
+      }
+      const now = () => Math.floor(Date.now() / 1000);
+
+      function ago(t) {
+        const d = now() - t;
+        if (d < 60) return 'just now';
+        for (const [s, n] of [
+            [31536000, 'year'],
+            [2592000, 'month'],
+            [604800, 'week'],
+            [86400, 'day'],
+            [3600, 'hour'],
+            [60, 'minute']
+          ])
+          if (d >= s) {
+            const k = Math.floor(d / s);
+            return k + ' ' + n + (k > 1 ? 's' : '') + ' ago'
+          } return 'just now'
+      }
+      const fname = u => {
+        try {
+          return decodeURIComponent(new URL(u).pathname.split('/').pop())
+        } catch (e) {
+          return 'file'
+        }
+      };
+      const av = s => el('div', {
+        class: 'av',
+        style: 'width:' + s + 'px;height:' + s + 'px'
+      }, '', [ico('person', Math.round(s * .7))]);
+
+      function canPost(c) {
+        const s = lsG('gb_as', {
+            last: 0,
+            times: [],
+            recent: []
+          }),
+          n = Date.now();
+        if (n - s.last < 8000) return 'Please wait a few seconds between posts.';
+        s.times = s.times.filter(t => n - t < 6e5);
+        if (s.times.length >= 15) return 'Posting limit reached.';
+        if (s.recent.includes(c)) return 'Duplicate content blocked.';
+        return null
+      }
+
+      function recPost(c) {
+        const s = lsG('gb_as', {
+          last: 0,
+          times: [],
+          recent: []
+        });
+        s.last = Date.now();
+        s.times.push(s.last);
+        s.recent.push(c);
+        if (s.recent.length > 10) s.recent.shift();
+        lsS('gb_as', s)
+      }
+      const slug = t => t.trim().toLowerCase().replace(/\s+/g, '_');
+
+      function clean(ts) {
+        const o = [];
+        ts.forEach(t => {
+          const s = slug(t).slice(0, 50);
+          if (!s || s === NS || s.indexOf(CAT) === 0 || o.includes(s)) return;
+          o.push(s)
+        });
+        return o.slice(0, 30)
+      }
+      const tv = (e, n) => {
+        const t = e.tags.find(x => x[0] === n);
+        return t ? t[1] : undefined
+      };
+      const base = ME0 => [
+        ['t', NS],
+        ['client', NS]
+      ];
+      async function signPost(tags, content) {
+        const ev = finalizeEvent({
+          kind: 1,
+          created_at: now(),
+          tags,
+          content,
+          pubkey: ME.pk
+        }, ME.sk);
+        addEv(ev);
+        return publish(ev)
+      }
+      async function doPost(d, msg) {
+        if (!ME) {
+          openL();
+          return null
+        }
+        const tags = clean(d.tags);
+        if (tags.length < 2) {
+          msg.textContent = 'Each post requires at least 2 tags.';
+          return null
+        }
+        const kind = vI(d.url) ? 'image' : vV(d.url) ? 'video' : 'audio',
+          er = canPost(d.url + tags.join());
+        if (er) {
+          msg.textContent = er;
+          return null
+        }
+        const t = [
+          ['t', NS],
+          ['t', CAT + d.cat],
+          ['client', NS],
+          ['u', ME.username],
+          ['tag', ME.tag],
+          ['rating', d.rating]
+        ];
+        tags.forEach(x => t.push(['t', x]));
+        t.push([kind, d.url]);
+        if (d.spoiler) t.push(['spoiler', '1']);
+        if (/^https?:\/\//i.test(d.source.trim())) t.push(['source', d.source.trim().slice(0, 300)]);
+        const ev = finalizeEvent({
+          kind: 1,
+          created_at: now(),
+          tags: t,
+          content: d.desc.slice(0, 2000),
+          pubkey: ME.pk
+        }, ME.sk);
+        addEv(ev);
+        const it = publish(ev);
+        recPost(d.url + tags.join());
+        return {
+          id: ev.id,
+          it
+        }
+      }
+
+      function addEv(e) {
+        if (!e || !e.id || seen.has(e.id)) return false;
+        try {
+          if (!verifyEvent(e)) return false
+        } catch (x) {
+          return false
+        }
+        if (!Array.isArray(e.tags)) return false;
+        if (!e.tags.find(t => t[0] === 't' && t[1] === NS) || !e.tags.find(t => t[0] === 'client' && t[1] === NS)) return false;
+        if (e.kind === 1) {
+          const cid = tv(e, 'comment');
+          if (cid) {
+            if (typeof cid !== 'string' || !e.content || e.content.length > 2000) return false;
+            seen.add(e.id);
+            const a = comments.get(cid) || [];
+            a.push({
+              id: e.id,
+              pk: e.pubkey,
+              u: String(tv(e, 'u') || '').slice(0, 24),
+              text: e.content,
+              at: e.created_at
+            });
+            a.sort((x, y) => x.at - y.at);
+            comments.set(cid, a);
+            return true
+          }
+          const ct = e.tags.find(t => t[0] === 't' && typeof t[1] === 'string' && t[1].indexOf(CAT) === 0);
+          if (!ct) return false;
+          const cat = ct[1].slice(CAT.length);
+          if (cat !== 'gallery' && cat !== 'propaganda') return false;
+          const i = tv(e, 'image'),
+            v = tv(e, 'video'),
+            a = tv(e, 'audio');
+          let url = null,
+            type = null;
+          if (i && vI(i)) {
+            url = i;
+            type = 'image'
+          } else if (v && vV(v)) {
+            url = v;
+            type = 'video'
+          } else if (a && vA(a)) {
+            url = a;
+            type = 'audio'
+          }
+          if (!url) return false;
+          const tg = [];
+          e.tags.forEach(t => {
+            if (t[0] !== 't' || typeof t[1] !== 'string' || t[1] === NS || t[1].indexOf(CAT) === 0 || tg.includes(t[1])) return;
+            tg.push(t[1])
+          });
+          if (tg.length < 2) return false;
+          let r = tv(e, 'rating') || 'safe';
+          if (!['safe', 'questionable', 'explicit'].includes(r)) r = 'safe';
+          let s = String(tv(e, 'source') || '').slice(0, 300);
+          if (!/^https?:\/\//i.test(s)) s = '';
+          seen.add(e.id);
+          posts.set(e.id, {
+            id: e.id,
+            pk: e.pubkey,
+            cat,
+            url,
+            type,
+            tags: tg.slice(0, 40),
+            u: String(tv(e, 'u') || '').slice(0, 24),
+            tag: String(tv(e, 'tag') || '').slice(0, 10),
+            rating: r,
+            source: s,
+            spoiler: !!tv(e, 'spoiler'),
+            desc: String(e.content || '').slice(0, 2000),
+            at: e.created_at
+          });
+          return true
+        }
+        if (e.kind === 7) {
+          const id = tv(e, 'e');
+          if (!id || !['+', '-'].includes(e.content)) return false;
+          const m = reacts.get(id) || new Map(),
+            p = m.get(e.pubkey);
+          if (p && p.at >= e.created_at) return false;
+          m.set(e.pubkey, {
+            type: e.content,
+            at: e.created_at
+          });
+          reacts.set(id, m);
+          return true
+        }
+        return false
+      }
+      const score = id => {
+          const m = reacts.get(id);
+          let u = 0,
+            d = 0;
+          if (m) m.forEach(v => v.type === '+' ? u++ : d++);
+          return {
+            u,
+            d
+          }
+        },
+        net = id => {
+          const s = score(id);
+          return s.u - s.d
+        };
+
+      function react(id, type) {
+        if (!ME) {
+          openL();
+          return
+        }
+        const m = reacts.get(id),
+          p = m && m.get(ME.pk);
+        if (p && p.type === type) return;
+        const ev = finalizeEvent({
+          kind: 7,
+          created_at: Math.max(now(), p ? p.at + 1 : 0),
+          tags: [
+            ['e', id],
+            ['t', NS],
+            ['client', NS]
+          ],
+          content: type,
+          pubkey: ME.pk
+        }, ME.sk);
+        addEv(ev);
+        publish(ev);
+        render(true)
+      }
+
+      function comment(id, text, msg) {
+        if (!ME) {
+          openL();
+          return
+        }
+        text = text.trim();
+        if (!text) {
+          msg.textContent = 'Write something first.';
+          return
+        }
+        const er = canPost('c' + id + text);
+        if (er) {
+          msg.textContent = er;
+          return
+        }
+        const ev = finalizeEvent({
+          kind: 1,
+          created_at: now(),
+          tags: [
+            ['t', NS],
+            ['client', NS],
+            ['comment', id],
+            ['u', ME.username]
+          ],
+          content: text.slice(0, 2000),
+          pubkey: ME.pk
+        }, ME.sk);
+        addEv(ev);
+        publish(ev);
+        recPost('c' + id + text);
+        render(true)
+      }
+      let sub = null,
+        rt = null;
+
+      function subAll() {
+        if (sub) {
+          try {
+            sub.close()
+          } catch (e) {}
+        }
+        try {
+          sub = pool.subscribeMany(RELAYS, [{
+            kinds: [1],
+            '#t': [NS],
+            limit: 2000
+          }, {
+            kinds: [7],
+            '#t': [NS],
+            limit: 4000
+          }], {
+            onevent: e => {
+              if (addEv(e) && !rt) rt = setTimeout(() => {
+                rt = null;
+                soft()
+              }, 250)
+            }
+          })
+        } catch (e) {
+          sub = null
+        }
+      }
+
+      function soft() {
+        const a = document.activeElement;
+        if (a && (a.tagName === 'TEXTAREA' || a.tagName === 'INPUT')) return;
+        if (cur.name === 'upload') return;
+        render(true)
+      }
+      const all = c => Array.from(posts.values()).filter(p => !c || p.cat === c);
+      const inR = (p, r) => r === 'all' || now() - p.at <= ({
+        day: 86400,
+        week: 604800,
+        month: 2592000,
+        year: 31536000
+      } [r] || 1e12);
+
+      function sortL(l, s) {
+        const a = l.slice();
+        if (s === 'popular') return a.sort((x, y) => net(y.id) - net(x.id) || y.at - x.at);
+        if (s === 'unpopular') return a.sort((x, y) => net(x.id) - net(y.id) || x.at - y.at);
+        if (s === 'controversial') {
+          const c = i => {
+            const z = score(i);
+            return Math.min(z.u, z.d) * 2 - Math.abs(z.u - z.d)
+          };
+          return a.sort((x, y) => c(y.id) - c(x.id) || y.at - x.at)
+        }
+        return a.sort((x, y) => y.at - x.at)
+      }
+
+      function thumb(p) {
+        const b = el('div', {
+          class: 'th' + (p.spoiler ? ' sp2' : '')
+        });
+        if (p.type === 'video') {
+          const v = el('video', {
+            src: p.url + '#t=0.5',
+            preload: 'metadata',
+            playsinline: ''
+          });
+          v.muted = true;
+          b.appendChild(v)
+        } else if (p.type === 'audio') b.appendChild(el('div', {
+          class: 'small'
+        }, fname(p.url)));
+        else b.appendChild(el('img', {
+          src: p.url,
+          alt: '',
+          loading: 'lazy'
+        }));
+        return b
+      }
+
+      function card(p) {
+        const c = el('div', {
+          class: 'pc ob'
+        });
+        c.appendChild(thumb(p));
+        const m = el('div', {
+          class: 'pm'
+        });
+        if (p.id === gem) {
+          m.appendChild(ico('gallery', 14));
+          m.appendChild(el('span', {}, 'Random Gem'))
+        } else {
+          m.appendChild(av(16));
+          m.appendChild(el('span', {
+            class: 'n'
+          }, p.u || 'unknown'))
+        }
+        m.appendChild(el('span', {
+          class: 't'
+        }, ago(p.at)));
+        c.appendChild(m);
+        c.onclick = () => location.hash = '#/post/' + p.id;
+        return c
+      }
+
+      function front(pg) {
+        const w = el('div', {
+            class: 'front'
+          }),
+          b = el('div', {
+            class: 'fb ob'
+          }),
+          t = el('div', {
+            class: 'ft'
+          });
+        if (ME) t.appendChild(el('a', {
+          href: '#/gallery'
+        }, 'Browse'));
+        else {
+          const a = el('a', {}, 'Log in');
+          a.onclick = openL;
+          const r = el('a', {}, 'Register');
+          r.onclick = openL;
+          t.appendChild(a);
+          t.appendChild(r)
+        }
+        b.appendChild(t);
+        const g = el('div', {
+            class: 'fg'
+          }),
+          mk = (i, l, f) => {
+            const x = el('button', {
+              class: 'fi',
+              type: 'button'
+            });
+            x.appendChild(ico(i, 26));
+            x.appendChild(el('span', {}, l));
+            x.onclick = f;
+            return x
+          };
+        g.appendChild(mk('gallery', 'Gallery', () => location.hash = '#/gallery'));
+        g.appendChild(mk('up', 'Upload', () => {
+          if (!ME) {
+            openL();
+            return
+          }
+          location.hash = '#/upload'
+        }));
+        g.appendChild(mk('person', 'Members', () => location.hash = '#/members'));
+        g.appendChild(mk('help', 'Help', () => location.hash = '#/rules'));
+        b.appendChild(g);
+        const s = el('div', {
+            class: 'srch'
+          }),
+          i = el('input', {
+            type: 'text',
+            placeholder: 'Search by tags...'
+          }),
+          bt = el('button', {
+            type: 'button'
+          });
+        bt.appendChild(ico('search', 18));
+        const go = () => {
+          const v = i.value.trim();
+          location.hash = '#/gallery' + (v ? '?q=' + encodeURIComponent(v) : '')
+        };
+        bt.onclick = go;
+        i.onkeydown = e => {
+          if (e.key === 'Enter') go()
+        };
+        s.appendChild(i);
+        s.appendChild(bt);
+        b.appendChild(s);
+        w.appendChild(b);
+        pg.appendChild(w)
+      }
+      const gh = (c, s, r, q, p) => '#/' + c + '?sort=' + s + '&range=' + r + (q ? '&q=' + encodeURIComponent(q) : '') + (p > 1 ? '&p=' + p : '');
+
+      function gallery(pg, r, cat) {
+        const w = el('div', {
+            class: 'wrap'
+          }),
+          sort = r.params.get('sort') || 'new',
+          range = r.params.get('range') || 'all',
+          q = (r.params.get('q') || '').trim(),
+          terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+        const ap = all();
+        if (!gem || !posts.has(gem)) gem = ap.length ? ap[Math.floor(Math.random() * ap.length)].id : null;
+        let l = all(cat).filter(p => inR(p, range));
+        if (terms.length) l = l.filter(p => terms.every(t => p.tags.some(x => x.includes(t)) || p.desc.toLowerCase().includes(t) || p.u.toLowerCase().includes(t)));
+        l = sortL(l, sort);
+        const tb = el('div', {
+            class: 'tabs ob'
+          }),
+          tab = (href, label, on) => {
+            const a = el('a', {
+              href
+            }, label);
+            if (on) a.classList.add('act');
+            tb.appendChild(a)
+          };
+        tab(gh('gallery', sort, range, q), 'Gallery', cat === 'gallery');
+        tab(gh('propaganda', sort, range, q), 'Propaganda', cat === 'propaganda');
+        tb.appendChild(el('span', {
+          class: 'gap'
+        }));
+        [
+          ['new', 'New'],
+          ['popular', 'Popular'],
+          ['unpopular', 'Unpopular'],
+          ['controversial', 'Controversial']
+        ].forEach(([k, n]) => tab(gh(cat, k, range, q), n, sort === k));
+        tb.appendChild(el('span', {
+          class: 'gap'
+        }));
+        ['day', 'week', 'month', 'year', 'all'].forEach(k => tab(gh(cat, sort, k, q), k[0].toUpperCase() + k.slice(1), range === k));
+        tb.appendChild(el('span', {
+          class: 'cnt'
+        }, l.length.toLocaleString() + ' posts'));
+        w.appendChild(tb);
+        const pp = 24,
+          n = Math.max(1, parseInt(r.params.get('p') || '1', 10) || 1),
+          pc = Math.max(1, Math.ceil(l.length / pp)),
+          pgn = Math.min(n, pc),
+          g = el('div', {
+            class: 'grid'
+          });
+        if (!l.length) g.appendChild(el('div', {
+          class: 'small'
+        }, 'No posts yet.'));
+        l.slice((pgn - 1) * pp, pgn * pp).forEach(p => g.appendChild(card(p)));
+        w.appendChild(g);
+        const pa = el('div', {
+            class: 'pager ob',
+            style: 'padding:4px;margin-left:auto;width:fit-content'
+          }),
+          inp = el('input', {
+            type: 'text',
+            value: String(pgn)
+          });
+        inp.onkeydown = e => {
+          if (e.key === 'Enter') location.hash = gh(cat, sort, range, q, Math.max(1, parseInt(inp.value, 10) || 1))
+        };
+        const up = el('a', {
+          href: '#'
+        }, '\u2191');
+        up.onclick = e => {
+          e.preventDefault();
+          scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          })
+        };
+        pa.appendChild(el('a', {
+          href: gh(cat, sort, range, q, Math.max(1, pgn - 1))
+        }, '\u2039'));
+        pa.appendChild(inp);
+        pa.appendChild(el('span', {
+          class: 'small'
+        }, '/ ' + pc));
+        pa.appendChild(el('a', {
+          href: gh(cat, sort, range, q, Math.min(pc, pgn + 1))
+        }, '\u203a'));
+        pa.appendChild(up);
+        w.appendChild(pa);
+        pg.appendChild(w)
+      }
+
+      function postPg(pg, r) {
+        const p = posts.get(r.arg),
+          w = el('div', {
+            class: 'wrap'
+          });
+        if (!p) {
+          w.appendChild(el('div', {
+            class: 'small'
+          }, 'Loading post from relays...'));
+          pg.appendChild(w);
+          return
+        }
+        const m = el('div', {
+          class: 'media ob'
+        });
+        if (p.type === 'video') m.appendChild(el('video', {
+          src: p.url,
+          controls: '',
+          playsinline: ''
+        }));
+        else if (p.type === 'audio') m.appendChild(el('audio', {
+          src: p.url,
+          controls: ''
+        }));
+        else {
+          const im = el('img', {
+              src: p.url,
+              alt: ''
+            }),
+            dm = el('span', {
+              class: 'small'
+            });
+          im.onload = () => {
+            dm.textContent = im.naturalWidth + '\u00d7' + im.naturalHeight
+          };
+          m.appendChild(im);
+          m.dim = dm
+        }
+        w.appendChild(m);
+        const inf = el('div', {
+            class: 'info ob'
+          }),
+          who = el('div', {
+            style: 'display:flex;gap:8px;align-items:center'
+          });
+        who.appendChild(av(32));
+        who.appendChild(el('div', {}, '', [el('div', {
+          class: 'nm'
+        }, (p.u || 'unknown') + ' ' + p.tag), el('div', {
+          class: 'small'
+        }, ago(p.at))]));
+        inf.appendChild(who);
+        inf.appendChild(el('span', {
+          class: 'bdg ' + (p.rating === 'safe' ? 'g' : p.rating === 'explicit' ? 'e' : 'q')
+        }, p.rating[0].toUpperCase() + p.rating.slice(1)));
+        inf.appendChild(el('span', {
+          class: 'bdg b'
+        }, p.cat === 'gallery' ? 'Gallery' : 'Propaganda'));
+        const so = el('span', {
+          class: 'small'
+        }, 'Source ');
+        if (p.source) so.appendChild(el('a', {
+          href: p.source,
+          target: '_blank',
+          rel: 'noopener noreferrer'
+        }, p.source));
+        else so.appendChild(el('i', {}, 'No source'));
+        inf.appendChild(so);
+        inf.appendChild(el('span', {
+          class: 'sp'
+        }));
+        const meta = el('div', {
+          class: 'small',
+          style: 'text-align:right;font-family:monospace'
+        }, '', [el('div', {}, '#' + p.id.slice(0, 8)), m.dim || el('span')]);
+        inf.appendChild(meta);
+        const s = score(p.id),
+          mine = ME && reacts.get(p.id) && reacts.get(p.id).get(ME.pk),
+          rc = el('div', {
+            class: 'row',
+            style: 'margin:0'
+          });
+        const b1 = el('button', {
+            class: 'btn' + (mine && mine.type === '+' ? ' on' : ''),
+            type: 'button'
+          }, '\u25b2 ' + s.u),
+          b2 = el('button', {
+            class: 'btn' + (mine && mine.type === '-' ? ' on' : ''),
+            type: 'button'
+          }, '\u25bc ' + s.d);
+        b1.onclick = () => react(p.id, '+');
+        b2.onclick = () => react(p.id, '-');
+        rc.appendChild(b1);
+        rc.appendChild(b2);
+        inf.appendChild(rc);
+        w.appendChild(inf);
+        const d = el('div', {
+          class: 'box ob'
+        });
+        d.appendChild(el('h3', {}, 'Description'));
+        d.appendChild(p.desc ? el('div', {
+          style: 'white-space:pre-wrap'
+        }, p.desc) : el('i', {
+          class: 'small'
+        }, 'No description'));
+        d.appendChild(el('h3', {
+          style: 'margin-top:10px'
+        }, 'Tags'));
+        const tg = el('div', {
+          class: 'tags'
+        });
+        p.tags.forEach(t => tg.appendChild(el('a', {
+          class: 'tag',
+          href: '#/' + p.cat + '?q=' + encodeURIComponent(t)
+        }, t)));
+        d.appendChild(tg);
+        w.appendChild(d);
+        const cs = comments.get(p.id) || [],
+          c = el('div', {
+            class: 'box ob'
+          });
+        c.appendChild(el('h3', {}, 'Comments (' + cs.length + ')'));
+        const ta = el('textarea', {
+            rows: '4',
+            maxlength: '2000',
+            placeholder: ME ? 'Write a comment as ' + ME.username + '...' : 'Log in to comment...'
+          }),
+          cm = el('div', {
+            class: 'err'
+          }),
+          row = el('div', {
+            class: 'row',
+            style: 'justify-content:flex-end'
+          }),
+          pb = el('button', {
+            class: 'btn',
+            type: 'button'
+          }, 'Post');
+        pb.onclick = () => comment(p.id, ta.value, cm);
+        row.appendChild(pb);
+        c.appendChild(ta);
+        c.appendChild(row);
+        c.appendChild(cm);
+        cs.forEach(x => {
+          const r2 = el('div', {
+            class: 'cm'
+          });
+          r2.appendChild(av(32));
+          r2.appendChild(el('div', {}, '', [el('div', {
+            class: 'h'
+          }, '', [el('span', {
+            class: 'nm'
+          }, x.u || 'unknown'), document.createTextNode(' ' + ago(x.at))]), el('div', {
+            style: 'white-space:pre-wrap'
+          }, x.text)]));
+          c.appendChild(r2)
+        });
+        w.appendChild(c);
+        pg.appendChild(w)
+      }
+
+      function rules(pg) {
+        const w = el('div', {
+          class: 'wrap rules',
+          style: 'max-width:700px'
+        });
+        w.appendChild(el('h2', {}, 'Thy law'));
+        const ol = el('ol'),
+          li = (t, sub) => {
+            const l = el('li', {}, t);
+            if (sub) {
+              const u = el('ul');
+              sub.forEach(x => u.appendChild(el('li', {}, x)));
+              l.appendChild(u)
+            }
+            ol.appendChild(l)
+          };
+        li('Trolls r detained');
+        li('You will not upload, post, request, or link to content that puts the site at risk, including but not limited to:', ['Child abuse', 'Animal crush', 'Credible threats of violence']);
+        li('You will not post the following types of content intended to harm other users or their browsing experiences:', ['IP grabbers', 'Malware', 'Text formatting abuse that slows down browsers']);
+        ['Dont post actual political propaganda', 'Evading bans or other moderation actions is not tolerated and will result in further action.', 'Unsolicited advertising is not welcome.', 'Automating actions such as posting and reacting is prohibited.', 'Pedophilia and zoophilia are not permitted.'].forEach(x => li(x));
+        w.appendChild(ol);
+        w.appendChild(el('h3', {
+          style: 'margin-top:14px'
+        }, 'hi'));
+        w.appendChild(el('p', {}, "hi"));
+        pg.appendChild(w)
+      }
+
+      function members(pg) {
+        const w = el('div', {
+          class: 'wrap'
+        });
+        w.appendChild(el('h2', {
+          style: 'margin-bottom:8px'
+        }, 'Members'));
+        const n = new Map();
+        posts.forEach(p => {
+          if (p.u) n.set(p.pk, p.u + ' ' + p.tag)
+        });
+        comments.forEach(a => a.forEach(x => {
+          if (x.u && !n.has(x.pk)) n.set(x.pk, x.u)
+        }));
+        const g = el('div', {
+          class: 'mg'
+        });
+        if (!n.size) g.appendChild(el('div', {
+          class: 'small'
+        }, 'No members yet.'));
+        n.forEach(v => g.appendChild(el('div', {
+          class: 'ob'
+        }, '', [av(28), el('span', {
+          class: 'nm'
+        }, v)])));
+        w.appendChild(g);
+        pg.appendChild(w)
+      }
+
+      function happen(pg) {
+        const w = el('div', {
+          class: 'wrap'
+        });
+        w.appendChild(el('h2', {
+          style: 'margin-bottom:8px'
+        }, 'Happenings'));
+        const b = el('div', {
+            class: 'box ob'
+          }),
+          l = Array.from(posts.values()).sort((a, c) => c.at - a.at).slice(0, 60);
+        if (!l.length) b.appendChild(el('div', {
+          class: 'small'
+        }, 'Nothing has happened yet.'));
+        l.forEach(p => {
+          const r = el('div', {
+            class: 'pm',
+            style: 'padding:5px 0;border-bottom:1px solid var(--bd);font-size:12px'
+          });
+          r.appendChild(av(18));
+          r.appendChild(el('a', {
+            href: '#/post/' + p.id
+          }, (p.u || 'unknown') + ' uploaded to ' + p.cat));
+          r.appendChild(el('span', {
+            class: 't'
+          }, ago(p.at)));
+          b.appendChild(r)
+        });
+        w.appendChild(b);
+        pg.appendChild(w)
+      }
+
+      function upload(pg) {
+        if (!ME) {
+          const w = el('div', {
+            class: 'wrap',
+            style: 'text-align:center'
+          });
+          w.appendChild(el('h2', {
+            style: 'margin-bottom:8px'
+          }, 'Sign in to upload'));
+          const b = el('button', {
+            class: 'btn pri',
+            type: 'button'
+          }, 'Log in');
+          b.onclick = openL;
+          w.appendChild(b);
+          pg.appendChild(w);
+          return
+        }
+        const w = el('div', {
+            class: 'wrap',
+            style: 'max-width:760px'
+          }),
+          h = el('div', {
+            class: 'box ob'
+          });
+        h.appendChild(el('div', {
+          style: 'font-weight:600'
+        }, 'Upload'));
+        h.appendChild(el('div', {
+          class: 'small'
+        }, 'Tommy Parky Fresh Tight Sticky Pudding yes please'));
+        w.appendChild(h);
+        const tb = el('div', {
+          class: 'box ob',
+          style: 'text-align:center;cursor:pointer'
+        }, 'Tutorial');
+        tb.onclick = () => $('tut').classList.remove('hidden');
+        w.appendChild(tb);
+        const fc = el('div', {
+          class: 'box ob'
+        });
+        fc.appendChild(el('div', {
+          style: 'font-weight:600'
+        }, 'Files'));
+        fc.appendChild(el('div', {
+          class: 'small'
+        }, 'Select a single image, video, or audio file to upload'));
+        const dz = el('div', {
+          class: 'dz'
+        }, '', [ico('up', 34), el('div', {
+          style: 'font-weight:600;color:var(--fg)'
+        }, 'Drop a link here or paste one below'), el('div', {
+          class: 'small'
+        }, 'Upload to catbox.moe first, then paste the files.catbox.moe link'), el('div', {
+          class: 'small'
+        }, 'Accepted formats: JPG, PNG, GIF, WebP, MP4, WebM, MP3, WAV')]);
+        fc.appendChild(dz);
+        const lr = el('div', {
+            class: 'row'
+          }),
+          li = el('input', {
+            type: 'text',
+            placeholder: 'https://files.catbox.moe/xxxxxx.png'
+          }),
+          ab = el('button', {
+            class: 'btn',
+            type: 'button'
+          }, 'Add file');
+        lr.appendChild(li);
+        lr.appendChild(ab);
+        fc.appendChild(lr);
+        const hold = el('div');
+        fc.appendChild(hold);
+        w.appendChild(fc);
+        const ub = el('button', {
+            class: 'btn',
+            type: 'button',
+            style: 'width:100%;justify-content:center',
+            disabled: ''
+          }, 'Upload Post'),
+          msg = el('div', {
+            class: 'err',
+            style: 'text-align:center'
+          });
+        w.appendChild(ub);
+        w.appendChild(msg);
+        pg.appendChild(w);
+        let d = null;
+
+        function add(u) {
+          if (!(vI(u) || vV(u) || vA(u))) {
+            msg.textContent = 'Invalid link. It must be an https://files.catbox.moe/ link ending in jpg, png, gif, webp, mp4, webm, mp3 or wav.';
+            return
+          }
+          msg.textContent = '';
+          d = {
+            url: u,
+            tags: [],
+            rating: 'safe',
+            cat: 'gallery',
+            desc: '',
+            source: '',
+            spoiler: false
+          };
+          hold.textContent = '';
+          hold.appendChild(review(d, ub))
+        }
+        ab.onclick = () => add(li.value.trim());
+        li.onkeydown = e => {
+          if (e.key === 'Enter') add(li.value.trim())
+        };
+        dz.ondragover = e => {
+          e.preventDefault();
+          dz.classList.add('over')
+        };
+        dz.ondragleave = () => dz.classList.remove('over');
+        dz.ondrop = e => {
+          e.preventDefault();
+          dz.classList.remove('over');
+          const t = (e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain') || '').trim();
+          if (t) {
+            const u = t.split(/\s+/)[0];
+            li.value = u;
+            add(u)
+          } else msg.textContent = 'Files cannot be dropped directly. Upload to catbox.moe first, then paste the link.'
+        };
+        ub.onclick = async () => {
+          if (!d) return;
+          msg.textContent = '';
+          ub.style.pointerEvents = 'none';
+          const r = await doPost(d, msg);
+          ub.style.pointerEvents = '';
+          if (r) {
+            msg.style.color = 'var(--mf)';
+            msg.textContent = 'Posted. Sending to relays...';
+            await waitAck(r.it, 15000);
+            location.hash = '#/post/' + r.id
+          }
+        }
+      }
+
+      function review(d, ub) {
+        const b = el('div', {
+            class: 'fr ob'
+          }),
+          h = el('div', {
+            class: 'frh'
+          }),
+          t = el('div', {
+            class: 'frt'
+          });
+        if (vV(d.url)) t.appendChild(el('video', {
+          src: d.url,
+          preload: 'metadata'
+        }));
+        else if (vA(d.url)) t.appendChild(ico('gallery', 28));
+        else t.appendChild(el('img', {
+          src: d.url,
+          alt: ''
+        }));
+        h.appendChild(t);
+        const inf = el('div', {
+          style: 'flex:1;min-width:0'
+        }, '', [el('div', {
+          style: 'word-break:break-all'
+        }, fname(d.url)), el('div', {
+          class: 'small'
+        }, 'Hosted on Catbox')]);
+        h.appendChild(inf);
+        const sb = el('button', {
+          class: 'ic',
+          type: 'button',
+          title: 'Toggle spoiler'
+        }, '[S]');
+        sb.onclick = () => {
+          d.spoiler = !d.spoiler;
+          sb.style.color = d.spoiler ? 'var(--pr)' : ''
+        };
+        h.appendChild(sb);
+        b.appendChild(h);
+        const sm = el('details'),
+          ss = el('summary', {}, 'Similar posts'),
+          sbd = el('div', {
+            class: 'b'
+          });
+        sm.appendChild(ss);
+        sm.appendChild(sbd);
+        const du = Array.from(posts.values()).filter(p => p.url === d.url);
+        if (!du.length) sbd.appendChild(el('div', {
+          class: 'small'
+        }, 'No duplicates found.'));
+        else du.forEach(x => sbd.appendChild(el('div', {}, '', [el('a', {
+          href: '#/post/' + x.id
+        }, 'Existing post by ' + x.u)])));
+        b.appendChild(sm);
+        b.appendChild(el('div', {
+          class: 'lbl'
+        }, 'Tags specific to this file:'));
+        const ti = el('input', {
+            type: 'text',
+            placeholder: 'Add tags for this file, separated by spaces...'
+          }),
+          w = el('div', {
+            class: 'err'
+          }, 'Each post requires at least 2 tags. Add more common or per-file tags.');
+        b.appendChild(ti);
+        b.appendChild(w);
+        const sync = () => {
+          d.tags = clean(ti.value.split(/\s+/));
+          const ok = d.tags.length >= 2;
+          w.classList.toggle('hidden', ok);
+          ub.disabled = !ok
+        };
+        ti.oninput = sync;
+        sync();
+        b.appendChild(el('div', {
+          class: 'lbl'
+        }, 'Rating:'));
+        const rs = el('select');
+        ['safe', 'questionable', 'explicit'].forEach(v => rs.appendChild(el('option', {
+          value: v
+        }, v[0].toUpperCase() + v.slice(1))));
+        rs.onchange = () => d.rating = rs.value;
+        b.appendChild(rs);
+        b.appendChild(el('div', {
+          class: 'lbl'
+        }, 'Category:'));
+        const cs = el('select');
+        [
+          ['gallery', 'Gallery'],
+          ['propaganda', 'Propaganda']
+        ].forEach(([v, l]) => cs.appendChild(el('option', {
+          value: v
+        }, l)));
+        cs.onchange = () => d.cat = cs.value;
+        b.appendChild(cs);
+        b.appendChild(el('div', {
+          class: 'lbl'
+        }, 'Description specific to this file:'));
+        const de = el('textarea', {
+          rows: '3',
+          placeholder: 'Add a description for this file...'
+        });
+        de.oninput = () => d.desc = de.value;
+        b.appendChild(de);
+        b.appendChild(el('div', {
+          class: 'lbl'
+        }, 'Source specific to this file:'));
+        const so = el('input', {
+          type: 'text',
+          placeholder: 'https://example.com/source'
+        });
+        so.oninput = () => d.source = so.value;
+        b.appendChild(so);
+        return b
+      }
+
+      function route() {
+        const h = location.hash.replace(/^#\/?/, ''),
+          i = h.indexOf('?'),
+          path = i >= 0 ? h.slice(0, i) : h,
+          pr = new URLSearchParams(i >= 0 ? h.slice(i + 1) : ''),
+          p = path.split('/').filter(Boolean);
+        if (!p.length) return {
+          name: 'front',
+          params: pr
+        };
+        if (p[0] === 'gallery' || p[0] === 'propaganda') return {
+          name: 'gallery',
+          cat: p[0],
+          params: pr
+        };
+        if (p[0] === 'post') return {
+          name: 'post',
+          arg: p[1],
+          params: pr
+        };
+        return {
+          name: ['upload', 'rules', 'members', 'happenings'].includes(p[0]) ? p[0] : 'nf',
+          params: pr
+        }
+      }
+
+      function chips(r) {
+        const b = $('chips');
+        b.textContent = '';
+        if (r.name !== 'gallery') return;
+        const q = (r.params.get('q') || '').trim();
+        q.split(/\s+/).filter(Boolean).forEach(t => {
+          const c = el('span', {
+              class: 'chip'
+            }, t),
+            x = el('b', {}, '\u00d7');
+          x.onclick = () => {
+            const rest = q.split(/\s+/).filter(z => z && z !== t).join(' ');
+            location.hash = '#/' + r.cat + (rest ? '?q=' + encodeURIComponent(rest) : '')
+          };
+          c.appendChild(x);
+          b.appendChild(c)
+        })
+      }
+
+      function render(keep) {
+        const y = scrollY,
+          r = route();
+        cur = r;
+        const pg = $('page');
+        pg.textContent = '';
+        const f = r.name === 'front';
+        $('top').classList.toggle('hidden', f);
+        $('side').classList.toggle('hidden', f || !side);
+        pg.style.padding = f ? '0' : '';
+        document.querySelectorAll('.nav a[id]').forEach(a => a.classList.toggle('act', a.id === 'n-' + (r.cat || r.name)));
+        chips(r);
+        if (f) front(pg);
+        else({
+          gallery: () => gallery(pg, r, r.cat),
+          post: () => postPg(pg, r),
+          upload: () => upload(pg),
+          rules: () => rules(pg),
+          members: () => members(pg),
+          happenings: () => happen(pg),
+          nf: () => pg.appendChild(el('div', {
+            class: 'wrap'
+          }, 'Not found.'))
+        })[r.name]();
+        scrollTo(0, keep ? y : 0)
+      }
+      addEventListener('hashchange', () => render(false));
+
+      function hdr() {
+        $('who').textContent = ME ? 'Signed in as ' + ME.username + ' ' + ME.tag : '';
+        $('li').classList.toggle('hidden', !!ME);
+        $('lo').classList.toggle('hidden', !ME);
+        $('sa').classList.toggle('hidden', !!ME)
+      }
+      const step = id => ['s-u', 's-l', 's-s', 's-f'].forEach(s => $(s).classList.toggle('hidden', s !== id));
+
+      function openL() {
+        $('lm').classList.remove('hidden');
+        step('s-u');
+        $('lu').focus()
+      }
+      const closeL = () => $('lm').classList.add('hidden');
+
+      function enter(k) {
+        ME = {
+          username: k.username,
+          tag: k.tag,
+          sk: k.sk,
+          pk: k.pk
+        };
+        closeL();
+        if ($('stay').checked) lsS('gb_last', ME.username);
+        ['lp', 'sp', 'sq', 'sa2', 'fa', 'fp'].forEach(i => $(i).value = '');
+        hdr();
+        render(true)
+      }
+      $('li').onclick = openL;
+      $('sl').onclick = openL;
+      $('sr').onclick = openL;
+      $('lx').onclick = closeL;
+      $('lm').onclick = e => {
+        if (e.target === $('lm')) closeL()
+      };
+      $('tx').onclick = () => $('tut').classList.add('hidden');
+      $('tut').onclick = e => {
+        if (e.target === $('tut')) $('tut').classList.add('hidden')
+      };
+      $('tf').onclick = () => {
+        $('tut').classList.add('hidden');
+        location.hash = '#/rules'
+      };
+      $('lo').onclick = () => {
+        ME = null;
+        hdr();
+        render(true)
+      };
+      $('dot').onclick = () => alert($('dot').title);
+      $('tg').onclick = () => {
+        side = !side;
+        lsS('gb_side', side);
+        $('side').classList.toggle('hidden', cur.name === 'front' || !side)
+      };
+      document.querySelectorAll('[data-sub]').forEach(b => b.onclick = () => $(b.dataset.sub).classList.toggle('hidden'));
+      document.querySelectorAll('.bk').forEach(b => b.onclick = () => step('s-u'));
+      const dsb = () => {
+        const v = $('si').value.trim(),
+          cat = cur.name === 'gallery' ? cur.cat : 'gallery',
+          c = cur.name === 'gallery' ? (cur.params.get('q') || '').trim() : '',
+          m = (c + ' ' + v).trim();
+        $('si').value = '';
+        location.hash = '#/' + cat + (m ? '?q=' + encodeURIComponent(m) : '')
+      };
+      $('sb').onclick = dsb;
+      $('si').onkeydown = e => {
+        if (e.key === 'Enter') dsb()
+      };
+      $('cb').onclick = async () => {
+        const u = nu($('lu').value);
+        if (!okName(u)) {
+          $('ue').textContent = 'Usernames are 3 to 24 letters, numbers or underscores.';
+          return
+        }
+        $('ue').textContent = 'Checking relays...';
+        const {
+          g
+        } = parseAcc(await fetchAcc(u));
+        $('ue').textContent = '';
+        if (g) {
+          $('ln').textContent = u;
+          step('s-l');
+          $('lp').focus()
+        } else {
+          $('sn').textContent = u;
+          step('s-s');
+          $('sp').focus()
+        }
+      };
+      $('lb').onclick = async () => {
+        const e = $('le');
+        if (!$('lp').value) {
+          e.textContent = 'Enter your password.';
+          return
+        }
+        e.textContent = 'Verifying...';
+        const r = await tryOpen($('lu').value, $('lp').value, 'encByPassword');
+        if (!r.ok) {
+          e.textContent = r.r === 'nf' ? 'Account not found on any relay right now, try again.' : 'Incorrect password.';
+          return
+        }
+        e.textContent = '';
+        enter(r)
+      };
+      $('sbn').onclick = async () => {
+        const e = $('se'),
+          pw = $('sp').value,
+          q = $('sq').value.trim(),
+          a = $('sa2').value;
+        if (!pw || !q || !a) {
+          e.textContent = 'Fill in all fields.';
+          return
+        }
+        if (pw.length < 6) {
+          e.textContent = 'Password must be at least 6 characters.';
+          return
+        }
+        e.textContent = 'Creating your account...';
+        let r = null;
+        try {
+          r = await createAcc($('lu').value, pw, q, a)
+        } catch (x) {}
+        if (!r) {
+          e.textContent = 'No relay accepted the account. Check your connection and try again.';
+          return
+        }
+        e.textContent = '';
+        enter(r)
+      };
+      $('fl').onclick = async () => {
+        $('fq').textContent = 'Loading question...';
+        step('s-f');
+        const {
+          g
+        } = parseAcc(await fetchAcc($('lu').value));
+        $('fq').textContent = g ? 'Question: ' + g.d.question : 'Account not found.'
+      };
+      $('fb').onclick = async () => {
+        const e = $('fe'),
+          np = $('fp').value;
+        if (np.length < 6) {
+          e.textContent = 'New password must be at least 6 characters.';
+          return
+        }
+        e.textContent = 'Verifying your answer...';
+        const r = await tryOpen($('lu').value, nu($('fa').value), 'encByAnswer');
+        if (!r.ok) {
+          e.textContent = 'Incorrect answer. Recovery needs the exact original answer.';
+          return
+        }
+        const ok = await pubAcc($('lu').value, {
+          type: 'update',
+          username: nu($('lu').value),
+          encByPassword: await wrap(np, r.sk)
+        });
+        e.textContent = ok ? 'Password reset. You can log in now.' : 'No relay accepted the update. Try again.'
+      };
+      $('lu').onkeydown = e => {
+        if (e.key === 'Enter') $('cb').click()
+      };
+      $('lp').onkeydown = e => {
+        if (e.key === 'Enter') $('lb').click()
+      };
+      $('sa2').onkeydown = e => {
+        if (e.key === 'Enter') $('sbn').click()
+      };
+      $('fp').onkeydown = e => {
+        if (e.key === 'Enter') $('fb').click()
+      };
+      icons();
+      const lu = lsG('gb_last', null);
+      if (lu) $('lu').value = lu;
+      render(false);
+      RELAYS.forEach(conn);
+      subAll();
+      pump();
+      setInterval(stat, 5000);
+      setInterval(pump, 4000);
+      setInterval(subAll, 90000);
+    </script>
+  </body>
+</html>
